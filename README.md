@@ -1,6 +1,6 @@
 ## 연구 방법
 ### 연구 설계
-![구조](../main/images/project1.png)
+![구조](main/images/project1.png)
 
 ### 연구 대상
 
