@@ -1,4 +1,4 @@
-# project 구조
+# 임베디드 기기 대상 둠 포팅하기
 
 ## 서론
 ### 연구의 목적
@@ -24,7 +24,7 @@
   + 파일 시스템 추출
   + 파일 및 파일 시스템 분석
   + 파일 변조 및 리패키징 사전 실습
-- 실제 기기 연구 [Physical Device Analysis](../2.%20project/Physical%20Device%20Analysis)
+- 실제 기기 연구 [Physical Device Analysis](../project/2.%20Physical%20Device%20Analysis)
   + Chip-Off 및 Firmware Extraction
   + Firmware Analysis
   + DOOM Porting
