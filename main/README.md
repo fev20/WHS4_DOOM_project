@@ -18,7 +18,7 @@
 
 
 ### 연구 방법 [Project](../project)
-- 사전 조사 및 분석
+- 사전 조사 및 분석 [Physical Device Analysis](../project/Physical%20Device%20Analysis)
   + 선행 연구 분석
   + 펌웨어 구조 분석
   + 파일 시스템 추출
