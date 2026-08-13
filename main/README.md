@@ -17,7 +17,7 @@
 ### 연구 대상
 
 
-### 연구 방법 [Project](project/project)
+### 연구 방법 [Project](../project)
 - 사전 조사 및 분석
   + 선행 연구 분석
   + 펌웨어 구조 분석
