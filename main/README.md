@@ -1,6 +1,5 @@
 # 임베디드 기기 대상 DOOM 포팅하기
 
-**Embedded System Analysis · Firmware Analysis · DOOM Porting**
 
 홈캠의 하드웨어와 펌웨어를 분석하고,
 분석한 실행 환경에 맞게 DOOM을 포팅하여 실제 기기에서의 구동을 목표로 한다.
@@ -82,7 +81,9 @@
 <br>
 
 ## 4) 기술적 배경
+(1) 사용하는 도구
 
+(2) 사용하는 명령어
 
 
 <br>
