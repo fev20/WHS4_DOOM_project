@@ -1,5 +1,3 @@
-<div align="center">
-
 # 임베디드 기기 대상 DOOM 포팅하기
 
 **Embedded System Analysis · Firmware Analysis · DOOM Porting**
@@ -10,8 +8,6 @@
 <br>
 
 [**Project Files →**](../project/)
-
-</div>
 
 ---
 
