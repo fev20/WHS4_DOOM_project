@@ -88,7 +88,7 @@
 본 연구의 대상 기기는 중국 JOOAN사의 홈캠이다. 
 
 <p align="center">
-  <img src="images/jooan.png" alt="둠 포팅할 기기" width="850">
+  <img src="images/jooan.png" alt="둠 포팅할 기기" width="550">
 </p>
 <br>
 
