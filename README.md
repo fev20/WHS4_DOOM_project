@@ -25,7 +25,7 @@
 │   │   ├── 1. Prior Research Analysis
 │   │   ├── 2. Firmware Structure Analysis
 │   │   ├── 3. File System Extraction
-│   │   ├── 4. File & File System Analysis
+│   │   ├── 4. File System & File Analysis
 │   │   └── 5. File Modification & Repackaging Practice
 │   │
 │   ├── 2. Physical Device Analysis/
