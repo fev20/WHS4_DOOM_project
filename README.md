@@ -36,9 +36,9 @@
 │   │
 │   ├── 2. Physical Device Analysis/
 │   │   ├── 1. Chip-Off & Firmware Extraction
-│   │   ├── 2. Firmware Verification & Difference Analysis
+│   │   ├── 2. Firmware Analysis
 │   │   ├── 3. DOOM Porting
-│   │   ├── 4. Firmware Modification & Repackaging
+│   │   ├── 4. Firmware Modification
 │   │   ├── 5. Rework
 │   │   └── 6. Testing
 │   │
