@@ -12,19 +12,19 @@
 
 ## Contents
 
-* [서론](#-서론)
+* [서론](#01-서론)
+  * [연구의 필요성](#1-연구의-필요성)
+  * [선행 연구](#2-선행-연구)
+  * [연구의 목표](#3-연구의-목표)
+  * [기술적 배경](#4-기술적-배경)
 
-  * [연구의 필요성](#연구의-필요성)
-  * [선행 연구](#선행-연구)
-  * [연구의 목표](#연구의-목표)
-  * [기술적 배경](#기술적-배경)
-* [연구 방법](#-연구-방법)
-
+* [연구 방법](#02-연구-방법)
   * [연구 설계](#연구-설계)
   * [연구 대상](#연구-대상)
   * [연구 수행 절차](#연구-수행-절차)
-* [결과](#-결과)
-* [고찰](#-고찰)
+
+* [결과](#03-결과)
+* [고찰](#04-고찰)
 
 <br>
 
@@ -124,15 +124,17 @@
 
 ### 1. Preliminary Research & Analysis
 
-실제 기기를 분석하기 전 선행 연구와 펌웨어를 기반으로 분석 방법 및 수행 절차를 사전에 확인한다.
+실제 기기를 분석하기 전 선행 연구를 분석하고, 확보한 펌웨어를 대상으로 펌웨어 및 파일 시스템 구조와 부팅 흐름을 분석한다. 이후 실제 기기 도착 전 수행할 수 있는 DOOM 포팅 준비 작업을 진행한다.
 
-| Step | 수행 단계              |                                                                        Documentation                                                                        |
-| :--: | ------------------ | :---------------------------------------------------------------------------------------------------------------------------------------------------------: |
-|  01  | 선행 연구 분석           |                     [Prior Research Analysis](../project/1.%20Preliminary%20Research%20%26%20Analysis/1.%20Prior%20Research%20Analysis)                     |
-|  02  | 펌웨어 구조 분석          |                 [Firmware Structure Analysis](../project/1.%20Preliminary%20Research%20%26%20Analysis/2.%20Firmware%20Structure%20Analysis)                 |
-|  03  | 파일 시스템 추출          |                      [File System Extraction](../project/1.%20Preliminary%20Research%20%26%20Analysis/3.%20File%20System%20Extraction)                      |
-|  04  | 파일 및 파일 시스템 분석     |              [File & File System Analysis](../project/1.%20Preliminary%20Research%20%26%20Analysis/4.%20File%20%26%20File%20System%20Analysis)              |
-|  05  | 파일 변조 및 리패키징 사전 실습 | [File Modification & Repackaging Practice](../project/1.%20Preliminary%20Research%20%26%20Analysis/5.%20File%20Modification%20%26%20Repackaging%20Practice) |
+| Step | 수행 단계 | Documentation |
+| :--: | ------------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| 01 | 선행 연구 분석 | [Prior Research Analysis](../project/1.%20Preliminary%20Research%20%26%20Analysis/1.%20Prior%20Research%20Analysis) |
+| 02 | 펌웨어 및 파일 시스템 분석 | [Firmware & File System Analysis](../project/1.%20Preliminary%20Research%20%26%20Analysis/2.%20Firmware%20Analysis/1.%20Firmware%20%26%20File%20System%20Analysis) |
+| 03 | 부팅 흐름 분석 | [Boot Flow Analysis](../project/1.%20Preliminary%20Research%20%26%20Analysis/2.%20Firmware%20Analysis/2.%20Boot%20Flow%20Analysis) |
+| 04 | 펌웨어 실행 환경 분석 | [Execution Environment Analysis](../project/1.%20Preliminary%20Research%20%26%20Analysis/3.%20DOOM%20Porting%20Preparation/1.%20Execution%20Environment%20Analysis) |
+| 05 | Web Server 및 SD Card 환경 분석 | [Web & SD Environment Analysis](../project/1.%20Preliminary%20Research%20%26%20Analysis/3.%20DOOM%20Porting%20Preparation/2.%20Web%20%26%20SD%20Environment%20Analysis) |
+| 06 | DoomGeneric 및 웹 뷰어 구현 | [DOOM Output Implementation](../project/1.%20Preliminary%20Research%20%26%20Analysis/3.%20DOOM%20Porting%20Preparation/3.%20DOOM%20Output%20Implementation) |
+| 07 | MIPS Cross-Compile 및 사전 테스트 | [Cross-Compilation & Pre-Testing](../project/1.%20Preliminary%20Research%20%26%20Analysis/3.%20DOOM%20Porting%20Preparation/4.%20Cross-Compilation%20%26%20Pre-Testing) |
 
 > **[Preliminary Research & Analysis →](../project/1.%20Preliminary%20Research%20%26%20Analysis/)**
 
@@ -142,14 +144,14 @@
 
 사전 분석을 기반으로 실제 기기에서 펌웨어 추출부터 분석, DOOM Porting, 펌웨어 수정 및 검증까지 수행한다.
 
-| Step | 수행 단계                          |                                                        Documentation                                                       |
+| Step | 수행 단계 | Documentation |
 | :--: | ------------------------------ | :------------------------------------------------------------------------------------------------------------------------: |
-|  01  | Chip-Off 및 Firmware Extraction | [Chip-Off & Firmware Extraction](../project/2.%20Physical%20Device%20Analysis/1.%20Chip-Off%20%26%20Firmware%20Extraction) |
-|  02  | Firmware Analysis              |                 [Firmware Analysis](../project/2.%20Physical%20Device%20Analysis/2.%20Firmware%20Analysis)                 |
-|  03  | DOOM Porting                   |                      [DOOM Porting](../project/2.%20Physical%20Device%20Analysis/3.%20DOOM%20Porting)                      |
-|  04  | Firmware Modification          |             [Firmware Modification](../project/2.%20Physical%20Device%20Analysis/4.%20Firmware%20Modification)             |
-|  05  | Rework                         |                             [Rework](../project/2.%20Physical%20Device%20Analysis/5.%20Rework)                             |
-|  06  | Testing                        |                            [Testing](../project/2.%20Physical%20Device%20Analysis/6.%20Testing)                            |
+| 01 | Chip-Off 및 Firmware Extraction | [Chip-Off & Firmware Extraction](../project/2.%20Physical%20Device%20Analysis/1.%20Chip-Off%20%26%20Firmware%20Extraction) |
+| 02 | Firmware Analysis | [Firmware Analysis](../project/2.%20Physical%20Device%20Analysis/2.%20Firmware%20Analysis) |
+| 03 | DOOM Porting | [DOOM Porting](../project/2.%20Physical%20Device%20Analysis/3.%20DOOM%20Porting) |
+| 04 | Firmware Modification | [Firmware Modification](../project/2.%20Physical%20Device%20Analysis/4.%20Firmware%20Modification) |
+| 05 | Rework | [Rework](../project/2.%20Physical%20Device%20Analysis/5.%20Rework) |
+| 06 | Testing | [Testing](../project/2.%20Physical%20Device%20Analysis/6.%20Testing) |
 
 > **[Physical Device Analysis →](../project/2.%20Physical%20Device%20Analysis/)**
 
@@ -164,16 +166,22 @@ Preliminary Research & Analysis
      Prior Research Analysis
               │
               ▼
-   Firmware Structure Analysis
+        Firmware Analysis
+              │
+              ├─ Firmware Structure Analysis
+              ├─ File System Extraction
+              └─ File System & File Analysis
               │
               ▼
-     File System Extraction
+       Boot Flow Analysis
               │
               ▼
-   File & File System Analysis
+    DOOM Porting Preparation
               │
-              ▼
-File Modification & Repackaging Practice
+              ├─ Execution Environment Analysis
+              ├─ Web & SD Environment Analysis
+              ├─ DOOM Output Implementation
+              └─ Cross-Compilation & Pre-Testing
               │
               ▼
       Physical Device Analysis
