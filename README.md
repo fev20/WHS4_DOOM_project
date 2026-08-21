@@ -23,16 +23,22 @@
 ├── project/
 │   ├── 1. Preliminary Research & Analysis/
 │   │   ├── 1. Prior Research Analysis
-│   │   ├── 2. Firmware Structure Analysis
-│   │   ├── 3. File System Extraction
-│   │   ├── 4. File System & File Analysis
-│   │   └── 5. File Modification & Repackaging Practice
+│   │   │
+│   │   ├── 2. Firmware Analysis/
+│   │   │   ├── 1. Firmware & File System Analysis
+│   │   │   └── 2. Boot Flow Analysis
+│   │   │
+│   │   └── 3. DOOM Porting Preparation/
+│   │       ├── 1. Execution Environment Analysis
+│   │       ├── 2. Web & SD Environment Analysis
+│   │       ├── 3. DOOM Output Implementation
+│   │       └── 4. Cross-Compilation & Pre-Testing
 │   │
 │   ├── 2. Physical Device Analysis/
 │   │   ├── 1. Chip-Off & Firmware Extraction
-│   │   ├── 2. Firmware Analysis
+│   │   ├── 2. Firmware Verification & Difference Analysis
 │   │   ├── 3. DOOM Porting
-│   │   ├── 4. Firmware Modification
+│   │   ├── 4. Firmware Modification & Repackaging
 │   │   ├── 5. Rework
 │   │   └── 6. Testing
 │   │
@@ -57,11 +63,11 @@
 
 프로젝트는 크게 다음 두 단계로 구성됩니다.
 
-1. **Preliminary Research & Analysis**
-   실제 기기를 분석하기 전 수행하는 선행 연구 분석, 펌웨어 구조 분석, 파일 시스템 추출 및 분석, 파일 변조와 리패키징 사전 실습을 기록합니다.
+1. **Preliminary Research & Analysis**  
+   실제 기기 분석 전 수행하는 선행 연구, 펌웨어·파일 시스템 및 부팅 흐름 분석, DOOM 포팅 사전 준비 과정을 기록합니다.
 
-2. **Physical Device Analysis**
-   실제 기기를 대상으로 수행하는 Chip-Off, Firmware Extraction, Firmware Analysis, DOOM Porting, Firmware Modification, Rework 및 Testing 과정을 기록합니다.
+2. **Physical Device Analysis**  
+   실제 기기를 대상으로 수행하는 펌웨어 추출 및 검증, DOOM 포팅, 펌웨어 수정·리패키징, Rework 및 Testing 과정을 기록합니다.
 
 ---
 
@@ -72,23 +78,35 @@ Preliminary Research & Analysis
         ↓
 Prior Research Analysis
         ↓
+Firmware Analysis
+        ↓
 Firmware Structure Analysis
         ↓
 File System Extraction
         ↓
-File & File System Analysis
+File System & File Analysis
         ↓
-File Modification & Repackaging Practice
+Boot Flow Analysis
+        ↓
+DOOM Porting Preparation
+        ↓
+Execution Environment Analysis
+        ↓
+Web & SD Environment Analysis
+        ↓
+DOOM Output Implementation
+        ↓
+Cross-Compilation & Pre-Testing
         ↓
 Physical Device Analysis
         ↓
 Chip-Off & Firmware Extraction
         ↓
-Firmware Analysis
+Firmware Verification & Difference Analysis
         ↓
 DOOM Porting
         ↓
-Firmware Modification
+Firmware Modification & Repackaging
         ↓
 Rework
         ↓
