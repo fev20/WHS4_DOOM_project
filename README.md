@@ -32,7 +32,8 @@
     │   │
     │   ├── 2. Firmware Analysis/
     │   │   ├── 1. Firmware & File System Analysis.md
-    │   │   └── 2. Boot Flow Analysis.md
+    │   │   ├── 2. Boot Flow Analysis.md
+    │   │   └── 3. QEMU Dynamic Analysis.md
     │   │
     │   └── 3. DOOM Porting Preparation/
     │       ├── 1. Execution Environment Analysis.md
@@ -82,13 +83,11 @@ Prior Research Analysis
         ↓
 Firmware Analysis
         ↓
-Firmware Structure Analysis
-        ↓
-File System Extraction
-        ↓
-File System & File Analysis
+Firmware & File System Analysis
         ↓
 Boot Flow Analysis
+        ↓
+QEMU Dynamic Analysis
         ↓
 DOOM Porting Preparation
         ↓
@@ -104,11 +103,11 @@ Physical Device Analysis
         ↓
 Chip-Off & Firmware Extraction
         ↓
-Firmware Verification & Difference Analysis
+Firmware Analysis
         ↓
 DOOM Porting
         ↓
-Firmware Modification & Repackaging
+Firmware Modification
         ↓
 Rework
         ↓
