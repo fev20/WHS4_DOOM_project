@@ -16,35 +16,37 @@
 
 ```text
 .
+├── README.md
+│
 ├── main/
-│   ├── images/
-│   └── README.md
+│   ├── README.md
+│   └── images/
 │
-├── project/
-│   ├── 1. Preliminary Research & Analysis/
-│   │   ├── 1. Prior Research Analysis
-│   │   │
-│   │   ├── 2. Firmware Analysis/
-│   │   │   ├── 1. Firmware & File System Analysis
-│   │   │   └── 2. Boot Flow Analysis
-│   │   │
-│   │   └── 3. DOOM Porting Preparation/
-│   │       ├── 1. Execution Environment Analysis
-│   │       ├── 2. Web & SD Environment Analysis
-│   │       ├── 3. DOOM Output Implementation
-│   │       └── 4. Cross-Compilation & Pre-Testing
-│   │
-│   ├── 2. Physical Device Analysis/
-│   │   ├── 1. Chip-Off & Firmware Extraction
-│   │   ├── 2. Firmware Analysis
-│   │   ├── 3. DOOM Porting
-│   │   ├── 4. Firmware Modification
-│   │   ├── 5. Rework
-│   │   └── 6. Testing
-│   │
-│   └── README.md
-│
-└── README.md
+└── project/
+    ├── README.md
+    │
+    ├── 1. Preliminary Research & Analysis/
+    │   │
+    │   ├── 1. Prior Research Analysis/
+    │   │   └── 1. Prior Research Analysis.md
+    │   │
+    │   ├── 2. Firmware Analysis/
+    │   │   ├── 1. Firmware & File System Analysis.md
+    │   │   └── 2. Boot Flow Analysis.md
+    │   │
+    │   └── 3. DOOM Porting Preparation/
+    │       ├── 1. Execution Environment Analysis.md
+    │       ├── 2. Web & SD Environment Analysis.md
+    │       ├── 3. DOOM Output Implementation.md
+    │       └── 4. Cross-Compilation & Pre-Testing.md
+    │
+    └── 2. Physical Device Analysis/
+        ├── 1. Chip-Off & Firmware Extraction.md
+        ├── 2. Firmware Analysis.md
+        ├── 3. DOOM Porting.md
+        ├── 4. Firmware Modification.md
+        ├── 5. Rework.md
+        └── 6. Testing.md
 ```
 
 ---
