@@ -166,7 +166,8 @@ Preliminary Research & Analysis
         │
         ├── Firmware Analysis
         │      ├── Firmware & File System Analysis
-        │      └── Boot Flow Analysis
+        │      ├── Boot Flow Analysis
+        │      └── QEMU Dynamic Analysis
         │
         └── DOOM Porting Preparation
                ├── Execution Environment Analysis
