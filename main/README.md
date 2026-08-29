@@ -161,48 +161,28 @@
 
 ```text
 Preliminary Research & Analysis
-              │
-              ▼
-     Prior Research Analysis
-              │
-              ▼
-        Firmware Analysis
-              │
-              ├─ Firmware Structure Analysis
-              ├─ File System Extraction
-              └─ File System & File Analysis
-              │
-              ▼
-       Boot Flow Analysis
-              │
-              ▼
-    DOOM Porting Preparation
-              │
-              ├─ Execution Environment Analysis
-              ├─ Web & SD Environment Analysis
-              ├─ DOOM Output Implementation
-              └─ Cross-Compilation & Pre-Testing
-              │
-              ▼
-      Physical Device Analysis
-              │
-              ▼
-  Chip-Off & Firmware Extraction
-              │
-              ▼
-       Firmware Analysis
-              │
-              ▼
-          DOOM Porting
-              │
-              ▼
-     Firmware Modification
-              │
-              ▼
-             Rework
-              │
-              ▼
-            Testing
+        │
+        ├── Prior Research Analysis
+        │
+        ├── Firmware Analysis
+        │      ├── Firmware & File System Analysis
+        │      └── Boot Flow Analysis
+        │
+        └── DOOM Porting Preparation
+               ├── Execution Environment Analysis
+               ├── Web & SD Environment Analysis
+               ├── DOOM Output Implementation
+               └── Cross-Compilation & Pre-Testing
+        │
+        ▼
+Physical Device Analysis
+        │
+        ├── Chip-Off & Firmware Extraction
+        ├── Firmware Analysis
+        ├── DOOM Porting
+        ├── Firmware Modification
+        ├── Rework
+        └── Testing
 ```
 
 <br>
