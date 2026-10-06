@@ -31,4 +31,23 @@ Repository Notice
 
 ## 키워드
 
-## 목차
+## 프로젝트 목차
+1. Related Work
+    + Analysis of Previous Research
+2. Target System and Analysis Environment
+    + Target System and Analysis Environment
+3. Firmware Analysis
+    + Firmware Extraction
+    + Static Structure Analysis
+    + Dynamic Structure Analysis
+4. Modification and Porting Environment Setup
+    + Preliminary Practice in File Modification and Repackaging
+    + Cross-Compilation Environment Setup
+5. DOOM Porting Implementation
+    + Screen Output Implementation
+    + Control Input Implementation
+6. Experiments and Results
+    + Verification on the Actual Device
+    + Results Analysis and Limitations
+7. Conclusion and Future Work
+    + References
