@@ -42,7 +42,6 @@ Repository Notice
 
 ---
 
-### 배경
 ### 대상
 ### 결과
 
