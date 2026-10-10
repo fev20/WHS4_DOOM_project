@@ -20,8 +20,6 @@
 | 명령어 집합(ISA) 버전 | CPU가 지원하지 않는 명령어가 생성되지 않도록 확인합니다. |
 | ABI | 함수 인자·반환값 전달과 레지스터 사용 규칙을 맞추기 위해 확인합니다. |
 | 부동소수점 규격 | 실수 연산 및 실수 값 전달 방식, 레지스터 규격을 맞추기 위해 확인합니다. |
-| libc 종류·버전 | 원본 C 라이브러리 환경을 파악하고 링크 방식을 결정하기 위해 확인합니다. |
-| 동적 링커 경로 | 원본 프로그램이 공유 라이브러리를 불러오는 경로를 파악하기 위해 확인합니다. |
 
 <br>
 
@@ -32,6 +30,10 @@
 ```bash
 find . -type f -name jooanipc
 ```
+
+![jooanipc 위치 검색 결과](./images/find-jooanipc.png)
+
+*그림. 추출한 파일시스템에서 `jooanipc` 위치를 검색한 결과*
 
 출력에는 파일까지의 경로가 표시됩니다. **찾은 `jooanipc`가 있는 폴더로 이동한 뒤** 다음 분석 명령을 실행합니다.
 
@@ -51,7 +53,11 @@ file jooanipc
 jooanipc: ELF 32-bit LSB executable, MIPS, MIPS32 rel2 version 1 (SYSV), dynamically linked, interpreter /lib/ld-uClibc.so.0, stripped
 ```
 
-`ELF 32-bit`는 32비트, `LSB`는 리틀 엔디언, `MIPS32 rel2`는 MIPS32 Release 2를 나타냅니다. `dynamically linked`와 `interpreter`는 원본이 동적 링크이며 지정된 동적 링커를 사용한다는 뜻입니다.
+![jooanipc 파일 형식 확인 결과](./images/file-jooanipc.png)
+
+*그림. `jooanipc`의 파일 형식과 실행 규격을 확인한 결과*
+
+`ELF 32-bit`는 32비트, `LSB`는 리틀 엔디언, `MIPS32 rel2`는 MIPS32 Release 2를 나타냅니다.
 
 <br>
 
@@ -63,6 +69,10 @@ ELF는 실행 파일 형식입니다. `readelf -h`는 ELF 헤더를 읽습니다
 readelf -h jooanipc
 ```
 
+![jooanipc ELF 헤더 확인 결과](./images/readelf-header-jooanipc.png)
+
+*그림. `jooanipc`의 ELF 헤더를 확인한 결과*
+
 `Class: ELF32`, `Data: little endian`, `Flags`의 `o32`·`mips32r2`를 확인합니다. 여기서 `o32`가 ABI입니다. `Machine: MIPS R3000`이라는 표시만으로 실제 CPU 모델을 R3000이라고 판단하지 않습니다.
 
 `-A`는 MIPS 전용 속성을 읽습니다.
@@ -70,6 +80,10 @@ readelf -h jooanipc
 ```bash
 readelf -A jooanipc
 ```
+
+![jooanipc MIPS 속성 확인 결과](./images/readelf-attributes-jooanipc.png)
+
+*그림. `jooanipc`의 MIPS ISA와 부동소수점 ABI를 확인한 결과*
 
 앞선 분석에서 확인한 주요 출력은 다음과 같습니다.
 
@@ -83,33 +97,13 @@ FP ABI: Hard float (double precision)
 
 <br>
 
-### 4. 원본 libc 확인
-
-`-d`로 원본이 요구하는 공유 라이브러리를 읽습니다.
-
-```bash
-readelf -d jooanipc
-```
-
-`NEEDED` 항목의 `libc.so.0` 등을 기록합니다. 이어서 **추출한 rootfs의 `lib` 폴더**에서 라이브러리의 실제 연결 대상을 확인합니다. WSL 자체의 `/lib` 폴더와 혼동하지 않습니다.
-
-```bash
-ls -l libc.so.0 ld-uClibc.so.0
-```
-
-출력의 `->` 뒤가 심볼릭 링크의 대상입니다. `libuClibc-버전.so` 같은 파일명에서 라이브러리 계열과 버전 정보를 기록합니다. 경로가 없으면 추출한 파일시스템에서 라이브러리 위치를 다시 확인합니다.
-
-이번 정적 빌드는 원본 공유 라이브러리를 직접 사용하지 않으므로, 원본 uClibc와 동적 링커를 그대로 맞추는 동적 빌드와는 구분합니다.
-
-<br>
-
 ## 툴체인 선정 및 링크 방식
 
 이제 **조사한 규격의 실행 파일을 만들 개발 도구**를 선택합니다. 툴체인은 컴파일러·어셈블러·링커·대상용 라이브러리를 포함하는 도구 묶음입니다. 여기서는 Ubuntu의 `mipsel-linux-gnu-` 툴체인과 **정적 링크**를 사용합니다.
 
 libc는 `puts()`의 문자열 출력, `malloc()`의 메모리 할당 같은 C 기본 기능을 구현한 라이브러리입니다. 정적 링크는 프로그램이 사용하는 라이브러리 코드를 빌드할 때 실행 파일에 포함하는 방식입니다. 개발자가 코드를 직접 복사하는 것이 아니라, **`-static` 옵션을 지정하면 링커가 준비된 정적 라이브러리에서 필요한 부분을 가져옵니다.** [GCC 링크 옵션](https://gcc.gnu.org/onlinedocs/gcc/Link-Options.html)
 
-Ubuntu의 해당 툴체인은 glibc 기반이며 원본 카메라는 uClibc 계열입니다. 정적 빌드에서는 포함한 라이브러리 코드를 사용하므로 원본 동적 링커를 요구하지 않습니다. 다만 CPU·ABI·커널 호환성까지 자동으로 해결되는 것은 아닙니다.
+정적 빌드는 필요한 라이브러리 코드를 실행 파일에 포함하므로 대상 파일시스템의 공유 라이브러리 의존성을 줄일 수 있습니다. 다만 CPU·ABI·커널 호환성까지 자동으로 해결되는 것은 아닙니다.
 
 <br>
 
@@ -131,6 +125,10 @@ command -v mipsel-linux-gnu-gcc
 mipsel-linux-gnu-gcc --version
 mipsel-linux-gnu-gcc -print-file-name=libc.a
 ```
+
+![MIPS 크로스컴파일 툴체인 확인 결과](./images/mips-toolchain-check.png)
+
+*그림. MIPS 크로스컴파일러와 정적 C 라이브러리 설치를 확인한 결과*
 
 실행 경로와 GCC 버전이 출력되어야 합니다. 마지막 명령은 정적 C 라이브러리 `libc.a`의 경로를 출력합니다. 이름만 출력되거나 명령을 찾지 못하면 설치 상태를 점검합니다.
 
