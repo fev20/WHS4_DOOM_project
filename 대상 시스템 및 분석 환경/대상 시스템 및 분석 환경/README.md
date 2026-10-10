@@ -93,7 +93,7 @@ SoC(System on Chip)는 CPU와 주변 장치 제어 기능 등을 하나의 칩�
 
 대상 장비의 메인 SoC는 **Ingenic T23**입니다. T23은 XBurst CPU, ISP, 영상 인코딩 기능과 SD 카드·SPI·UART 등의 인터페이스를 갖춘 카메라용 영상 처리 SoC입니다.
 
-![Ingenic T23 내부 블록 구성도](https://en.ingenic.com.cn/file/upload//2023-12/29/202312291437464905.png)
+![Ingenic T23 내부 블록 구성도](img/ingenic-t23-block-diagram.png)
 
 그림 — Ingenic T23 내부 블록 구성도. 출처: [Ingenic](https://en.ingenic.com.cn/products-detail/id-22.html)
 
