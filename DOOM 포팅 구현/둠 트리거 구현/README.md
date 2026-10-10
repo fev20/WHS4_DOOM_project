@@ -4,6 +4,34 @@
 
 ## 1. 부팅 스크립트에 DOOM 실행 명령 포함하기
 
+카메라를 켤 때 DOOM도 자동으로 실행하려면 `/etc/init.d/rcS`에 실행 명령을 추가할 수 있습니다. `rcS`는 부팅 중 필요한 설정과 프로그램을 실행하는 스크립트입니다.
+
+먼저 SD 카드에 DOOM 바이너리와 WAD 파일을 넣고, 바이너리에 실행 권한을 부여합니다. 아래 예시는 파일이 각각 `/mnt/sd_card/doomgeneric_camera`와 `/mnt/sd_card/doom.wad`에 있는 경우입니다.
+
+```sh
+chmod +x /mnt/sd_card/doomgeneric_camera
+```
+
+펌웨어를 풀어 놓은 폴더의 `etc/init.d/rcS`를 열어, 기존 초기화 코드 뒤에 다음 내용을 추가합니다. 아래 예시는 SD 카드의 파일이 준비될 때까지 기다린 다음 DOOM을 실행합니다.
+
+```sh
+# SD 카드의 DOOM 파일이 준비되면 자동 실행
+(
+    while [ ! -x /mnt/sd_card/doomgeneric_camera ] || [ ! -r /mnt/sd_card/doom.wad ]; do
+        sleep 1
+    done
+    /mnt/sd_card/doomgeneric_camera -iwad /mnt/sd_card/doom.wad
+) &
+```
+
+`-x`는 실행 파일에 실행 권한이 있는지, `-r`은 WAD 파일을 읽을 수 있는지 확인합니다. 파일이 아직 준비되지 않았으면 `sleep 1`로 1초 기다린 뒤 다시 확인합니다. 바이너리와 WAD 이름은 실제 사용하는 파일에 맞춰 바꿉니다.
+
+`-iwad`는 사용할 WAD 파일을 지정하는 인자입니다. 바이너리와 WAD 모두 절대경로로 지정하므로, 부팅 스크립트가 어느 폴더에서 실행되든 같은 파일을 찾습니다. 추가 인자는 사용하는 바이너리에 맞게 지정합니다.
+
+괄호 안의 작업 전체를 `&`로 백그라운드에서 실행하므로, SD 카드를 기다리는 동안에도 나머지 부팅 작업은 계속됩니다. SD 카드가 없거나 파일 경로·권한이 맞지 않으면 DOOM은 실행되지 않고 계속 기다립니다.
+
+수정한 펌웨어를 적용한 뒤 재부팅하면 이 코드가 실행됩니다. 이 방식은 게임 프로세스를 자동으로 시작하며, PC 브라우저에서 게임 페이지를 여는 동작은 별도로 필요합니다. 실제 사용할 바이너리와 기기의 SD 카드 준비 순서에 맞춰 동작을 확인해야 합니다.
+
 ## 2. GoActions를 수정해 웹 버튼으로 DOOM 실행하기
 
 카메라의 웹 로그인 화면에서 **리셋 버튼을 누르면 DOOM이 실행되고 게임 화면으로 이동**하도록 구성합니다. 여기서 리셋 버튼은 카메라 본체의 물리 버튼이 아니라 웹 페이지에 있는 버튼입니다.
@@ -153,12 +181,12 @@ file trigger_test
 
 #### 파이썬 파일로 패치 적용하기
 
-실제 파일에 바이트를 쓰는 작업은 [testserver.py](./testserver.py)로 진행했습니다. 파일 이름은 `testserver.py`이지만 웹 서버를 실행하는 프로그램이 아니라, `goahead`를 수정해 새 파일로 저장하는 패치 도구입니다.
+실제 파일에 바이트를 쓰는 작업은 [goahead_patch.py](./goahead_patch.py)로 진행했습니다.
 
-수정 전 `goahead`와 `testserver.py`를 같은 폴더에 두고, PC 터미널에서 그 폴더로 이동해 실행합니다.
+수정 전 `goahead`와 `goahead_patch.py`를 같은 폴더에 두고, PC 터미널에서 그 폴더로 이동해 실행합니다.
 
 ```bash
-python3 testserver.py
+python3 goahead_patch.py
 chmod +x goahead_patched
 ```
 
