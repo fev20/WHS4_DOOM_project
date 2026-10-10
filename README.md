@@ -43,6 +43,10 @@ Repository Notice
 ---
 
 ### 대상
+<p align="center">
+  <img src="./jooan.png" width="700">
+</p>
+
 ### 결과
 
 ## 키워드
