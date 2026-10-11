@@ -112,17 +112,28 @@ RAW 커널은 형식 정보가 없으므로 다음 항목을 직접 지정합니
 
 Ghidra 화면에서는 다음 순서로 불러옵니다. 버전에 따라 버튼 위치나 명칭이 조금 달라질 수 있으나 설정해야 하는 값은 같습니다.
 
-1. Ghidra Project 창에서 **File → New Project**를 선택하고 개인 분석용이면 **Non-Shared Project**를 만듭니다.
-2. **File → Import File...**을 선택하고 압축 해제한 커널 파일을 지정합니다.
-3. Import 창의 **Format**을 **Raw Binary**로 지정합니다.
-4. **Language** 옆의 선택 버튼을 누르고 필터에 `MIPS`를 입력합니다.
+1. Ghidra Project 창에서 File → New Project를 선택하고 개인 분석용이면 Non-Shared Project를 만듭니다.
+![프로젝트 생성](images/ghidra_setting_1.png)
+2.File → Import File...을 선택하고 압축 해제한 커널 파일을 지정합니다.
+![분석할 파일 선택](images/ghidra_setting_2.png)
+3. Import 창의 Format을 Raw Binary로 지정합니다.
+![파일 형식 선택](images/ghidra_setting_3.png)
+4. Language 옆의 선택 버튼을 누르고 필터에 `MIPS`를 입력합니다.
+![아키텍처 선택](images/ghidra_setting_4.png)
 5. 목록에서 32비트 little-endian에 해당하는 `MIPS:LE:32:default` 계열을 선택합니다. 결과가 정상적으로 해석되지 않으면 Variant를 다시 확인합니다.
-6. **Options...**에서 **Base Address**를 uImage의 Load Address인 `0x80010000`으로 지정합니다.
-7. Import 요약에서 파일 형식, Language와 Base Address를 다시 확인하고 **OK**를 선택합니다.
+![세부 아키텍처 설정](images/ghidra_setting_5.png)
+6. Options...에서 Base Address를 uImage의 Load Address인 `0x80010000`으로 지정합니다.
+![베이스 주소 설정](images/ghidra_setting_6.png)
+7. Import 요약에서 파일 형식, Language와 Base Address를 다시 확인하고 OK를 선택합니다.
 8. 프로젝트 목록에서 가져온 파일을 더블클릭하여 CodeBrowser로 엽니다.
-9. Auto Analysis 창이 나타나면 기본 reference·data·function 분석 항목을 유지하고 **Analyze**를 실행합니다. 창을 닫았다면 **Analysis → Auto Analyze...**에서 다시 실행할 수 있습니다.
-10. 분석 후 `G` 키를 눌러 uImage의 Entry Point인 `0x803782A0`으로 이동합니다. 해당 위치가 코드로 정의되지 않았다면 Listing에서 `D`로 디스어셈블하고, 함수 시작점이면 `F`로 함수를 생성합니다.
-
+![파일 선택](images/ghidra_setting_7.png)
+9. Auto Analysis 창이 나타나면 기본 reference·data·function 분석 항목을 유지하고 Analyze를 실행합니다. 창을 닫았다면 Analysis → Auto Analyze...에서 다시 실행할 수 있습니다.
+![자동 분석](images/ghidra_setting_8.png)
+10. 분석 후 `G` 키를 눌러 uImage의 Entry Point(앞서 말했듯이 고정값이 아니라 보드 및 펌웨어마다 다르기 때문에 찾아낸 주소값을 사용합니다)으로 이동합니다. 
+![주소 이동](images/ghidra_setting_9.png)
+해당 위치가 코드로 정의되지 않았다면 Listing에서 `D`로 디스어셈블하고, 함수 시작점이면 `F`로 함수를 생성합니다.
+![디컴파일](images/ghidra_setting_10.png)
+![라벨 붙이기](images/ghidra_setting_11.png)
 ELF는 헤더 정보를 이용해 형식과 Language가 자동 감지되는 경우가 많으므로 Import 요약을 확인한 뒤 진행합니다. RAW 커널은 이 정보가 없기 때문에 Format, Language와 Base Address를 반드시 직접 확인해야 합니다. 자세한 기본 사용법은 [Ghidra 공식 입문 가이드](https://ghidra.re/ghidra_docs/GhidraClass/Beginner/Introduction_to_Ghidra_Student_Guide.html)를 참고할 수 있습니다.
 
 베이스 주소는 파일의 첫 바이트가 실행 시 메모리의 어느 주소에 놓이는지를 Ghidra에 알려주는 값입니다. RAW 파일에는 이 정보가 없으므로 분석자가 직접 지정해야 합니다.
