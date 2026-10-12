@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Doom</title>
+  <style>
+    html, body { margin: 0; width: 100%; height: 100%; background: #000; overflow: hidden; }
+    body { display: flex; align-items: center; justify-content: center; }
+    canvas { display: block; width: min(100vw, 133.333333vh); height: min(75vw, 100vh); image-rendering: pixelated; }
+  </style>
+</head>
+<body>
+  <canvas id="doom" width="320" height="200" tabindex="0" aria-label="Doom screen"></canvas>
+  <script>
+    "use strict";
+    const canvas = document.getElementById("doom");
+    const context = canvas.getContext("2d", { alpha: false });
+    const image = context.createImageData(320, 200);
+    let socket = null;
+    let reconnectTimer = 0;
+    let animation = 0;
+    let pageActive = true;
+    const heldCodes = new Set();
+    const heldKeys = new Map();
+    const keyMap = {
+      KeyW: 0xad, KeyS: 0xaf, KeyA: 0xa0, KeyD: 0xa1,
+      KeyQ: 0xac, KeyE: 0xae,
+      ArrowUp: 0xad, ArrowDown: 0xaf, ArrowLeft: 0xac, ArrowRight: 0xae,
+      ControlLeft: 0xa2, ControlRight: 0xa2, Space: 0xa3,
+      ShiftLeft: 0xb6, ShiftRight: 0xb6, AltLeft: 0xb8, AltRight: 0xb8,
+      Enter: 13, NumpadEnter: 13, Escape: 27, Tab: 9, Backspace: 127,
+      Comma: 0xa0, Period: 0xa1, Minus: 45, Equal: 61
+    };
+
+    function doomKey(code) {
+      if (Object.prototype.hasOwnProperty.call(keyMap, code)) return keyMap[code];
+      if (/^Key[A-Z]$/.test(code)) return code.charCodeAt(3) + 32;
+      if (/^Digit[0-9]$/.test(code)) return code.charCodeAt(5);
+      return null;
+    }
+
+    function releaseKeys(notify = true) {
+      heldCodes.clear();
+      heldKeys.clear();
+      if (notify && socket && socket.readyState === WebSocket.OPEN)
+        socket.send(new Uint8Array([4]));
+    }
+
+    canvas.addEventListener("pointerdown", () => canvas.focus({ preventScroll: true }));
+    canvas.addEventListener("blur", () => releaseKeys());
+    window.addEventListener("blur", () => releaseKeys());
+    canvas.addEventListener("keydown", event => {
+      const key = doomKey(event.code);
+      if (key === null || document.hidden || !pageActive) return;
+      event.preventDefault();
+      if (event.repeat || heldCodes.has(event.code) || !socket ||
+          socket.readyState !== WebSocket.OPEN) return;
+      heldCodes.add(event.code);
+      const count = heldKeys.get(key) || 0;
+      heldKeys.set(key, count + 1);
+      if (count === 0) socket.send(new Uint8Array([3, 1, key]));
+    });
+    window.addEventListener("keyup", event => {
+      if (!heldCodes.delete(event.code)) return;
+      event.preventDefault();
+      const key = doomKey(event.code);
+      const count = heldKeys.get(key) - 1;
+      if (count > 0) heldKeys.set(key, count);
+      else {
+        heldKeys.delete(key);
+        if (socket && socket.readyState === WebSocket.OPEN)
+          socket.send(new Uint8Array([3, 0, key]));
+      }
+    });
+
+    function retry() {
+      clearTimeout(reconnectTimer);
+      if (pageActive && !document.hidden) reconnectTimer = setTimeout(connect, 1000);
+    }
+
+    function connect() {
+      if (!pageActive || document.hidden) return;
+      if (socket && socket.readyState !== WebSocket.CLOSED) return;
+      const scheme = location.protocol === "https:" ? "wss" : "ws";
+      const current = new WebSocket(`${scheme}://${location.host}/ws`);
+      socket = current;
+      current.binaryType = "arraybuffer";
+      current.addEventListener("open", () => {
+        if (current === socket) releaseKeys();
+      });
+
+      current.addEventListener("message", event => {
+        if (current !== socket) return;
+        if (!(event.data instanceof ArrayBuffer) || event.data.byteLength !== 64772) {
+          current.close(1002, "Invalid frame size");
+          return;
+        }
+        if (animation) {
+          current.close(1002, "Frame before ACK");
+          return;
+        }
+        const bytes = new Uint8Array(event.data);
+        const sequence = new DataView(event.data).getUint32(0, true);
+        animation = requestAnimationFrame(() => {
+          animation = 0;
+          if (current !== socket || current.readyState !== WebSocket.OPEN) return;
+          for (let pixel = 0, offset = 0; pixel < 64000; pixel++, offset += 4) {
+            const color = 4 + bytes[772 + pixel] * 3;
+            image.data[offset] = bytes[color];
+            image.data[offset + 1] = bytes[color + 1];
+            image.data[offset + 2] = bytes[color + 2];
+            image.data[offset + 3] = 255;
+          }
+          context.putImageData(image, 0, 0);
+          const ack = new Uint8Array(8);
+          ack[0] = 2;
+          ack[1] = 1;
+          new DataView(ack.buffer).setUint32(4, sequence, true);
+          current.send(ack);
+        });
+      });
+
+      current.addEventListener("close", () => {
+        if (current !== socket) return;
+        cancelAnimationFrame(animation);
+        animation = 0;
+        releaseKeys(false);
+        socket = null;
+        retry();
+      });
+      current.addEventListener("error", () => current.close());
+    }
+
+    function disconnect() {
+      releaseKeys();
+      clearTimeout(reconnectTimer);
+      cancelAnimationFrame(animation);
+      animation = 0;
+      if (socket && socket.readyState < WebSocket.CLOSING) socket.close(1000);
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.hidden) disconnect();
+      else connect();
+    });
+    window.addEventListener("pagehide", () => { pageActive = false; disconnect(); });
+    window.addEventListener("pageshow", () => { pageActive = true; connect(); });
+    connect();
+  </script>
+</body>
+</html>
