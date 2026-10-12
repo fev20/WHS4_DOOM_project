@@ -138,4 +138,19 @@ console::respawn:/sbin/getty -L console 115200 vt100 # GENERIC_SERIAL
 ::shutdown:/bin/umount -a -r
 ```
 
-squashfs-root/etc/inittab 파일에서 ::sysinit:/etc/init.d/rcS 항목 아래에 ::once:/sbin/telnetd 명령어를 추가하여, 시스템 초기화 이후 Telnet 서버를 실행하도록 설정할 수 있습니다.
+추가한 명령어의 의미는 다음과 같습니다.
+
+```
+::once:/sbin/telnetd
+```
+
+- once : 프로그램을 한 번 실행하고 종료될 때까지 기다리지 않으며, 종료되더라도 자동으로 재실행하지 않습니다.
+- /sbin/telnetd : 앞서 확인한 BusyBox의 Telnet 서버 실행 경로입니다.
+
+즉, 시스템 초기화 이후 Telnet 서버를 실행하도록 설정할 수 있습니다.
+
+### 주의사항
+
+이처럼 inittab의 once 항목을 활용하면 rcS를 직접 수정하지 않고도 부팅 과정에서 Telnet 서버를 시작하도록 구성할 수 있습니다.
+
+단, 앞서 설명한 것처럼 rcS와 inittab에 동일한 Telnet 서버 실행 명령어를 중복으로 추가할 필요는 없으며, 실제 적용 시에는 하나의 방법만 선택해야 합니다.
