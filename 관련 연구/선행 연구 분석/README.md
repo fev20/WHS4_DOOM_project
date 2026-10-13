@@ -70,5 +70,5 @@ binwalk로 덤프 이미지 내부의 파일시스템 시그니처를 탐지·�
 - 패턴 A. telnetd 활용: 파일시스템에 telnetd 바이너리가 있는 경우, 부팅 스크립트에 telnetd 실행을 추가하고 /etc/shadow를 수정해 telnet으로 root 접속
 - 패턴 B. netcat 리버스 셸: nc 명령어가 있으나 네트워크 미연결 가능성이 있는 경우, 특정 서버로 지속 접속을 시도하는 리버스 셸 스크립트를 작성해 부팅 스크립트에서 백그라운드 실행
 - 패턴 C. 명령어 정적 삽입: telnetd․nc가 모두 없는 경우, 기기 아키텍처(ARM/MIPS 등)를 확인 후 busybox․socat․nc를 정적 컴파일해 파일시스템에 삽입 (단, 용량 증가로 리패키징에 제약 가능성 존재)<br>
-논문 실습 사례(JOOAN 카메라, 패턴 A): 부팅 스크립트에 「/usr/sbin/telnetd &」를 추가하고, /etc/shadow의 root 라인을 「root::10933:0:99999:7:::」 형태로 수정했다.
+논문 실습 사례(JOOAN 카메라, 패턴 A): 부팅 스크립트에 「/usr/sbin/telnetd &」를 추가하고, /etc/shadow의 root 라인을 「root::10933:0:99999:7:::」 형태로 수정했습니다.
 
