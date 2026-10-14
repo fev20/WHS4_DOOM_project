@@ -71,13 +71,13 @@ SPI 통신과 I2C 통신을 위한 부분이 나누어져있습니다.
 해당 부분에 SOP→DIP 변환 어댑터를 끼웁니다.
 <br>
 
-![CH341](./images/7부분.jpg)
+![CH341](./images/9분해.jpg)
 <br>
 
-![CH341](./images/7부분.jpg)
+![CH341](./images/11분리된PCB전면.jpg)
 <br>
 
-![CH341](./images/7부분.jpg)
+![CH341](./images/14플래시메모리확대샷.jpg)
 <br>
 <br>
 <br>
