@@ -86,18 +86,29 @@ http://10.68.68.22:8081/index.html
 ![](images/5.png)
 #### 설치
 둠을 설치하기 위한 과정은 다음과 같습니다.
+
 [커스텀 펌웨어 및 둠 바이너리, 쉐어웨어 WAD파일](./DOOM_C9TS_포팅_버전_및_펌웨어/)
-1. 장치의 전원을 켜고 장치의 핫스팟에 연결합니다. <br>
-	![](images/2.png)
-2. 커스텀 펌웨어, 포팅된 doom 바이너리, wad 파일을 전부 다운받은 후, sd카드에 배치 후, 웹캠의 다음 엔드포인트로 접속합니다. <br>
-	![](images/1.png)
-    ```
-	http://10.68.68.22/goform/upgradeFW?userid=admin&userkey=0192023a7bbd73250516f069df18b500&filename=/mnt/sd_card/custom_firmware.img
-    ```
-	링크 접속시 잠시 기다리면 다음 화면과 함께 자동 재시작합니다.
-	![](images/3.png)
-3. 펌웨어 업데이트가 완료된 후, 브라우저에서 10.68.68.22에 접속해 reset 버튼을 누릅니다. 
-	![](images/4.png)
+
+1. 장치의 전원을 켜고 장치의 핫스팟에 연결합니다
+
+![](images/2.png)
+
+2. 커스텀 펌웨어, 포팅된 doom 바이너리, wad 파일을 전부 다운받은 후, sd카드에 배치 후, 웹캠의 다음 엔드포인트로 접속합니다.
+
+![](images/1.png)
+
+```
+http://10.68.68.22/goform/upgradeFW?userid=admin&userkey=0192023a7bbd73250516f069df18b500&filename=/mnt/sd_card/custom_firmware.img
+```
+
+링크 접속시 잠시 기다리면 다음 화면과 함께 자동 재시작합니다.
+
+![](images/3.png)
+
+3. 펌웨어 업데이트가 완료된 후, 브라우저에서 10.68.68.22에 접속해 reset 버튼을 누릅니다.
+
+![](images/4.png)
+
 4. 둠이 작동하는 엔드포인트로 자동 이동해 doom을 플레이할 수 있습니다.
 
 
@@ -117,7 +128,6 @@ http://10.68.68.22:8081/index.html
 | 키보드 상단의 숫자 1~7 | 무기 선택       | ASCII `49`~`55` |
 | Tab            | 지도 표시       | `9`             |
 
-<br>
 
 
 
