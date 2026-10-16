@@ -119,7 +119,10 @@ http://10.68.68.22:8081/index.html
 
 <br>
 
-![.](./둠포팅_완성본.webm)
+
+
+https://github.com/user-attachments/assets/6dd5558f-63c3-40bf-b55a-29a4ddd6ddfc
+
 둠 포팅 결과
 
 
