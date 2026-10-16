@@ -1,6 +1,6 @@
 # rcS
 
-앞에서 펌웨어 추출 과정을 통해 확보한 펌웨어를 기반으로, 본 문서에서는 실제 장비 내부에 접속할 수 있는 분석 환경을 만들기 위해 펌웨어의 /etc/shadow와 rcS 파일을 수정하는 방법에 대해서 다룹니다.
+앞에서 펌웨어 추출 과정을 통해 확보한 펌웨어를 기반으로, 본 문서에서는 실제 장비 내부에 접속할 수 있는 분석 환경을 만들기 위해 펌웨어의 `/etc/shadow`와 rcS 파일을 수정하는 방법에 대해서 다룹니다.
 
 ## telnetd 확인 및 /etc/shadow 수정
 
@@ -11,24 +11,24 @@
 따라서, 우선 파일 시스템에 아래와 같이 telnetd 명령어가 존재하는지 확인할 수 있습니다.
 
 ```
-find ./ -name "telnetd" 2>/dev/null
+find ./squashfs-root -name "telnetd" 2>/dev/null
 ```
 
 ```
-ls -al ./sbin/telnetd
+ls -al ./squashfs-root/sbin/telnetd
 ```
 
 ![](./image01.png)
 
-파일 시스템에 telnetd과 관련된 파일을 찾고, 해당 파일이 ../bin/busybox를 가리키는 심볼릭 링크임을 확인하면서, 펌웨어에 telnetd 명령어가 존재함을 알 수 있습니다.
+파일 시스템에 telnetd과 관련된 파일을 찾고, 해당 파일이 `../bin/busybox`를 가리키는 심볼릭 링크임을 확인하면서, 펌웨어에 telnetd 명령어가 존재함을 알 수 있습니다.
 
 ### /etc/shadow 수정
 
-telnet 접속 시 비밀번호 없이 root로 접속할 수 있게 하기 위해 파일 시스템에서 /etc/shadow 파일을 수정해줍니다.
+telnet 접속 시 비밀번호 없이 root로 접속할 수 있게 하기 위해 파일 시스템에서 `/etc/shadow` 파일을 수정해줍니다.
 
-여기서 /etc/shadow는 사용자 계정의 비밀번호와 관련된 정보를 저장하는 시스템 설정 파일입니다.
+여기서 `/etc/shadow`는 사용자 계정의 비밀번호와 관련된 정보를 저장하는 시스템 설정 파일입니다.
 
-/etc/shadow 파일을 수정 시에는 시스템 설정 파일이기 때문에 `sudo`를 붙여야 내용을 수정할 수 있습니다.
+`/etc/shadow` 파일을 수정 시에는 시스템 설정 파일이기 때문에 `sudo`를 붙여야 내용을 수정할 수 있습니다.
 
 ```
 sudo vi ./squashfs-root/etc/shadow
@@ -60,7 +60,7 @@ rcS는 시스템 부팅 시 실행되는 초기화 스크립트로, 장비가 �
 
 ### rcS 초기화 스크립트 분석
 
-펌웨어 분석 과정에서 알게 된 rcS 파일 경로는 ./squashfs-root/etc/init.d/rcS이며, cat 명령어를 통해 해당 초기화 스크립트를 열어보면 다음과 같습니다.
+펌웨어 분석 과정에서 알게 된 rcS 파일 경로는 `./squashfs-root/etc/init.d/rcS`이며, cat 명령어를 통해 해당 초기화 스크립트를 열어보면 다음과 같습니다.
 
 ```
 cat ./squashfs-root/etc/init.d/rcS
@@ -169,4 +169,4 @@ fi
 
 위에서 `/sbin/telnetd`는 앞서 확인한 BusyBox의 Telnet 서버 기능을 호출하는 경로이며, `&`는 명령어를 백그라운드에서 실행하기 위한 기호입니다.
 
-즉, ./etc/init.d/rcS 파일의 마지막줄에 /sbin/telnetd & 추가해줌으로써, 장비가 시작될 때 rcS에서 telnet 서버도 함께 시작하도록 설정할 수 있습니다.
+즉, `./etc/init.d/rcS` 파일의 마지막줄에 `/sbin/telnetd &` 추가해줌으로써, 장비가 시작될 때 rcS에서 telnet 서버도 함께 시작하도록 설정할 수 있습니다.
