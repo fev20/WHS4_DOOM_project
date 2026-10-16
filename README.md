@@ -75,7 +75,7 @@ Repository Notice
 본 연구의 대상 기기는 중국 JOOAN사의 홈캠(jooan-c9ts)입니다.
 
 <p align="center">
-  <img src="./jooan.png" width="700">
+  <img src="./jooan.png" width="350">
 </p>
 
 ### 결과
@@ -87,9 +87,9 @@ http://10.68.68.22:8081/index.html
 #### 설치
 둠을 설치하기 위한 과정은 다음과 같습니다.
 [커스텀 펌웨어 및 둠 바이너리, 쉐어웨어 WAD파일](./DOOM_C9TS_포팅_버전_및_펌웨어/)
-1. 장치의 전원을 켜고 장치의 핫스팟에 연결합니다.
+1. 장치의 전원을 켜고 장치의 핫스팟에 연결합니다. <br>
 	![](images/2.png)
-2. 커스텀 펌웨어, 포팅된 doom 바이너리, wad 파일을 전부 다운받은 후, sd카드에 배치 후, 웹캠의 다음 엔드포인트로 접속합니다.
+2. 커스텀 펌웨어, 포팅된 doom 바이너리, wad 파일을 전부 다운받은 후, sd카드에 배치 후, 웹캠의 다음 엔드포인트로 접속합니다. <br>
 	![](images/1.png)
     ```
 	http://10.68.68.22/goform/upgradeFW?userid=admin&userkey=0192023a7bbd73250516f069df18b500&filename=/mnt/sd_card/custom_firmware.img
