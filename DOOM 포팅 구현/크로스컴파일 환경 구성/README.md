@@ -225,12 +225,84 @@ readelf -A cross_compile_test_mips
 
 <br>
 
-## 구성 결과와 이후 활용
+## Doom 포팅을 위한 크로스컴파일 환경 구성
 
-이 단계에서 준비하는 것은 카메라용 실행 파일을 만들 컴파일러, 대상용 라이브러리, 빌드 옵션과 검사 도구입니다. 작은 C 프로그램으로 기본 환경을 점검하며, 화면 출력이나 게임 기능은 아직 구현하지 않습니다.
+위에서 작성한 makefile을 토대로, doomgeneric 소스코드를 mips 툴체인으로 컴파일할 수 있게 makefile을 수정했습니다.
 
-향후 DOOM의 화면 출력·입력 등 필요한 구조가 완성되면, 점검용 C 소스 대신 DoomGeneric 소스와 직접 작성한 플랫폼 구현 소스를 빌드 대상으로 지정합니다. 사용하는 외부 라이브러리가 있다면 해당 소스도 함께 빌드하거나, 같은 대상 규격으로 만들어진 라이브러리를 연결합니다.
+다음은 doomgeneric의 makefile 중 x11을 사용해 doom을 구동하는 makefile을 수정해, mips 툴체인과 mongoose web server를 사용하도록 수정한 makefile입니다.
 
-Makefile에서는 이번에 정한 컴파일러·CPU·ABI 옵션과 정적 링크 방식을 유지하고, 소스 목록·헤더 위치·필요한 라이브러리·출력 파일명을 실제 프로그램에 맞게 수정합니다. `make`를 실행하면 여러 소스를 컴파일하고 연결하여 카메라용 실행 파일을 생성합니다.
+```Makefile
+################################################################
+#
+# $Id:$
+#
+# $Log:$
+#
 
-생성된 파일은 이번과 동일하게 `file`과 `readelf`로 규격을 검사한 뒤 카메라로 옮겨 실행을 확인합니다. 즉, 이번에 구축하는 환경은 완성된 DOOM 코드를 카메라가 실행할 수 있는 형식으로 만드는 데 사용합니다. 빌드 성공과 실제 카메라에서의 정상 동작은 구분하여 확인합니다.
+ifeq ($(V),1)
+	VB=''
+else
+	VB=@
+endif
+
+
+CROSS_COMPILE ?= mipsel-linux-gnu-
+CC=$(CROSS_COMPILE)gcc
+CFLAGS+=-Os -flto -ffunction-sections -fdata-sections -fno-strict-aliasing
+LDFLAGS+=-static -Wl,--gc-sections -Wl,--build-id=none
+CFLAGS+=-Wall -DNORMALUNIX -DLINUX -DSNDSERV -D_GNU_SOURCE -std=gnu99 -UFEATURE_SOUND
+CFLAGS+=-EL -mips32r2 -mabi=32 -mhard-float -mfp32 -mnan=legacy
+CFLAGS+=-DCMAP256 -DDOOMGENERIC_RESX=320 -DDOOMGENERIC_RESY=200
+CFLAGS+=-DMG_ENABLE_LOG=0 -DMG_ENABLE_DIRLIST=0 -DMG_IO_SIZE=4096 -DMG_MAX_RECV_SIZE=8192
+LIBS+=-lm -lc
+
+# subdirectory for objects
+OBJDIR=build-mon
+OUTPUT=../doomgeneric_mon
+
+SRC_DOOM = dummy.o am_map.o doomdef.o doomstat.o dstrings.o d_event.o d_items.o d_iwad.o d_loop.o d_main.o d_mode.o d_net.o f_finale.o f_wipe.o g_game.o hu_lib.o hu_stuff.o info.o i_cdmus.o i_endoom.o i_joystick.o i_scale.o i_sound.o i_system.o i_timer.o memio.o m_argv.o m_bbox.o m_cheat.o m_config.o m_controls.o m_fixed.o m_menu.o m_misc.o m_random.o p_ceilng.o p_doors.o p_enemy.o p_floor.o p_inter.o p_lights.o p_map.o p_maputl.o p_mobj.o p_plats.o p_pspr.o p_saveg.o p_setup.o p_sight.o p_spec.o p_switch.o p_telept.o p_tick.o p_user.o r_bsp.o r_data.o r_draw.o r_main.o r_plane.o r_segs.o r_sky.o r_things.o sha1.o sounds.o statdump.o st_lib.o st_stuff.o s_sound.o tables.o v_video.o wi_stuff.o w_checksum.o w_file.o w_main.o w_wad.o z_zone.o w_file_stdc.o i_input.o i_video.o doomgeneric.o doomgeneric_mon.o mongoose.o
+OBJS += $(addprefix $(OBJDIR)/, $(SRC_DOOM))
+
+all:	 $(OUTPUT)
+
+clean:
+	rm -rf $(OBJDIR)
+	rm -f $(OUTPUT)
+	rm -f $(OUTPUT).gdb
+	rm -f $(OUTPUT).map
+
+$(OUTPUT):	$(OBJS)
+	@echo [Linking $@]
+	$(VB)$(CC) $(CFLAGS) $(LDFLAGS) $(OBJS) \
+	-o $(OUTPUT) $(LIBS) -Wl,-Map,$(OUTPUT).map
+	$(VB)$(CROSS_COMPILE)strip --strip-unneeded $(OUTPUT)
+	@echo [Size]
+	-$(CROSS_COMPILE)size $(OUTPUT)
+
+$(OBJS): | $(OBJDIR)
+
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
+
+$(OBJDIR)/%.o:	%.c makefile.mon
+	@echo [Compiling $<]
+	$(VB)$(CC) $(CFLAGS) -c $< -o $@
+
+print:
+	@echo OBJS: $(OBJS)
+
+```
+
+주요 변경점은 다음과 같습니다.
+
+1. 컴파일러 : `gcc` 에서 `mipsel-linux-gnu-gcc`로 교체 및 옵션 추가
+
+2. 플랫폼 코드 추가 : `doomgeneric_mon.c` + `mongoose.c` 추가 및 오브젝트 파일 추가
+
+3. 미사용 라이브러리(x11) 제거
+
+4. 오브젝트 파일 경로 변경 및  실행파일 이름 수정
+
+이를 활용해 doomgeneric을 mips 아키텍쳐에 알맞는 바이너리로 컴파일 할 수 있습니다.
+
+makefile을 활용한 doomgeneric 개발은 [화면 출력 구현](../화면%20출력%20구현/README.md)에서 계속됩니다.
