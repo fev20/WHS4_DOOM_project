@@ -11,7 +11,7 @@
           ↓
 [2] BusyBox로 QEMU·GDB와 rootfs 검증
           ↓
-[3] goahead의 rootfs·설정 영역 구성
+[3] goahead의 rootfs·설정 영역과 jooanipc의 appfs 라이브러리 준비
           ↓
 [4.1] HTTP 요청과 syscall 결과 연결
           ↓
@@ -33,6 +33,18 @@
 - Ghidra에서 확인한 요청 등록 함수와 콜백이 실행 중에도 실제로 등록됩니까?
 - QEMU에서 확인한 결과 중 어떤 항목을 실기기에서 다시 검증해야 합니까?
 
+실제로 실행하여 결과를 기록한 바이너리와 식별 정보는 다음과 같습니다.
+
+| 분석 대상 | 식별 정보 | 실행 환경 | 확인한 결과 |
+|---|---|---|---|
+| 실기기 추출 `goahead` | 추출본 `real_rootfs/bin/goahead`, 실기기 `/bin/goahead`, 355,552바이트, MD5 `8ff6ebd74eafbb0f9db3dc6cec1209d9` | QEMU user-mode·GDB, 실기기 `/proc` | 설정·HTTP 처리, 문서 루트 오류와 설정 수정 결과, handler·form 등록, 실기기 실행 파일 경로 |
+| 비교용 `goahead` | 당시 작업 경로 `./goahead`, 355,560바이트, MD5 `076dea6a9386e72f4f335d920caffe80` | QEMU user-mode | 같은 요청에서 `/etc/webs/home.htm`을 연 정상 비교 결과 |
+| `jooanipc` | appfs의 `/mnt/mtd/run/jooanipc`, 해시 미기록 | QEMU user-mode 실행 기록, 실기기 `ps` | appfs 라이브러리 필요, 로더 초기화 후 네트워크 관련 스레드 시작, 실기기 프로세스 실행 상태 |
+
+실기기 `/proc/<PID>/exe`와 MD5를 대조하여 첫 번째 `goahead`의 신원을 확인했습니다. 당시 작업 기록과 보존된 `old.log`·`new.log`를 대조한 결과 `old.log`는 멘토가 제공한 구버전의 정상 실행, `new.log`는 실기기에서 추출한 신버전의 `null/` 접근 오류에 해당합니다. 두 로그에는 실행 파일의 MD5가 포함되지 않았고 당시 ELF 원본도 현재 자료에 남아 있지 않으므로, 로그와 MD5의 연결은 당시 기록된 파일 식별 정보를 기준으로 합니다. 이후 GDB 주소와 callback 표는 MD5가 `8ff6ebd74eafbb0f9db3dc6cec1209d9`인 첫 번째 파일에만 적용합니다.
+
+`goahead`는 요청과 내부 함수의 관계를 재현할 로그와 GDB 기록이 충분하므로 주 분석 대상으로 사용했습니다. `jooanipc`는 작업 기록에 남은 출력에서 라이브러리 경로에 따른 실행 차이와 네트워크 초기화 단계 진입을 확인했습니다. 별도의 raw 실행 로그와 syscall·소켓·장치 접근 기록은 남아 있지 않으므로 이후 기능의 정상 동작까지 확정하지는 않습니다.
+
 ### 1.1 바이너리 형식과 의존성 확인
 
 바이너리 형식은 실행 파일이 어떤 CPU 명령어와 바이트 순서, ABI 및 로딩 방식을 사용하는지를 뜻합니다. 이 정보가 QEMU 종류와 GDB 아키텍처를 결정합니다. 예를 들어 MIPS little-endian ELF에는 `qemu-mipsel`을 사용하며, big-endian 바이너리에는 `qemu-mips`가 필요합니다.
@@ -47,16 +59,16 @@
 | 런타임 환경 | 환경 변수, 실행 인자, 포트, 다른 daemon, 장치와 IPC | QEMU 재현 범위와 실기기 검증 범위 구분 |
 
 ```sh
-file <binary>
-readelf -h <binary>   # ISA, endian, ABI, ELF 유형 확인
-readelf -A <binary>   # MIPS ABI와 ISA 확장 정보 확인
-readelf -l <binary>   # 동적 로더와 메모리 segment 확인
-readelf -d <binary>   # NEEDED 항목의 공유 라이브러리 확인
+file path/to/binary
+readelf -h path/to/binary   # ISA, endian, ABI, ELF 유형 확인
+readelf -A path/to/binary   # MIPS ABI와 ISA 확장 정보 확인
+readelf -l path/to/binary   # 동적 로더와 메모리 segment 확인
+readelf -d path/to/binary   # NEEDED 항목의 공유 라이브러리 확인
 ```
 
 `readelf -l`의 `Requesting program interpreter`는 실행에 필요한 동적 로더의 경로를 보여주고, `readelf -d`의 `NEEDED` 항목은 실행 파일에 선언된 직접 공유 라이브러리를 보여줍니다. 추출한 rootfs에서 이 경로와 파일이 존재하는지, 심볼릭 링크가 올바른 대상을 가리키는지 확인합니다. 이 확인을 생략하면 아키텍처가 맞아도 로더 부재, 라이브러리 버전 차이 또는 잘못된 절대경로 때문에 실행이 중단될 수 있습니다.
 
-분석한 `goahead`에서는 다음 결과를 확인했습니다.
+주 분석 대상인 MD5 `8ff6ebd74eafbb0f9db3dc6cec1209d9`의 `goahead`에서는 다음 결과를 확인했습니다.
 
 | 항목 | 관찰 결과 | 분석 환경에 미친 영향 |
 |---|---|---|
@@ -76,7 +88,7 @@ readelf -d <binary>   # NEEDED 항목의 공유 라이브러리 확인
 | syscall | 사용자 프로그램이 파일, 메모리, 네트워크와 프로세스 관리 등의 커널 기능을 요청하는 공식 진입점입니다. 일반 함수 호출과 달리 사용자 공간에서 커널 공간으로 제어가 넘어갑니다. |
 | `/proc` | 실행 중인 커널과 프로세스 정보를 파일 형태로 제공하는 가상 파일시스템입니다. 실제 플래시에 저장된 일반 파일은 아닙니다. |
 
-바이너리, ELF, ISA와 ABI처럼 파일 자체의 형식을 설명하는 용어는 [Ghidra를 통한 정적 분석](../Ghidra를%20통한%20정적%20분석/README.md)에서 다룹니다. 이 장에서는 실행 중에만 확인할 수 있는 PID, syscall과 `/proc` 정보를 중심으로 설명합니다.
+바이너리, ELF, ISA와 ABI처럼 파일 자체의 형식을 설명하는 용어는 [바이너리 정적 분석](../바이너리%20정적%20분석/README.md)에서 다룹니다. 이 장에서는 실행 중에만 확인할 수 있는 PID, syscall과 `/proc` 정보를 중심으로 설명합니다.
 
 `/proc/<PID>` 아래에서 주로 확인하는 항목은 다음과 같습니다.
 
@@ -149,7 +161,7 @@ qemu-mipsel-static -strace -L ./ ./bin/busybox
 - `socket`·`bind`·`listen`·`accept`: 네트워크 서비스의 생성과 요청 수신 흐름을 확인합니다.
 - 반환값: 파일 부재, 권한 문제, 잘못된 인자 등 실패 원인을 확인합니다.
 
-분석 대상이 stripped 바이너리여도 syscall의 이름, 인자와 반환값은 심볼 제거 여부와 관계없이 관찰할 수 있습니다. 따라서 특정 요청 직후 어떤 파일을 열다가 실패했는지, 어느 포트에서 대기하는지와 같은 외부 동작을 먼저 찾고 이를 정적 분석의 단서로 사용할 수 있습니다. stripped ELF의 의미와 분석 방법은 [Ghidra를 통한 정적 분석](../Ghidra를%20통한%20정적%20분석/README.md)에서 설명합니다. 다만 `-strace`만으로 syscall 사이의 내부 함수 호출 관계까지 알 수 있는 것은 아닙니다.
+분석 대상이 stripped 바이너리여도 syscall의 이름, 인자와 반환값은 심볼 제거 여부와 관계없이 관찰할 수 있습니다. 따라서 특정 요청 직후 어떤 파일을 열다가 실패했는지, 어느 포트에서 대기하는지와 같은 외부 동작을 먼저 찾고 이를 정적 분석의 단서로 사용할 수 있습니다. stripped ELF의 의미와 분석 방법은 [바이너리 정적 분석](../바이너리%20정적%20분석/README.md)에서 설명합니다. 다만 `-strace`만으로 syscall 사이의 내부 함수 호출 관계까지 알 수 있는 것은 아닙니다.
 
 QEMU의 `-strace`는 함수 호출 스택이 아니라 시스템 콜 추적 결과입니다.
 
@@ -187,7 +199,7 @@ BusyBox의 `_start`와 초기 명령어를 확인했습니다. 이 결과는 QEM
 /lib/libc.so.0 -> libuClibc-0.9.33.2.so
 ```
 
-`qemu-mipsel-static -L <rootfs>`의 `-L`은 주로 guest의 동적 로더와 라이브러리를 찾을 기준 경로를 제공합니다. 반면 `goahead`가 syscall로 `/etc/webs/route.txt`나 `/opt/conf/config.json` 같은 절대경로를 열면 단순한 `-L`만으로는 전체 파일시스템 구조를 재현하기 어렵습니다.
+`qemu-mipsel-static -L path/to/rootfs`의 `-L`은 주로 guest의 동적 로더와 라이브러리를 찾을 기준 경로를 제공합니다. 반면 `goahead`가 syscall로 `/etc/webs/route.txt`나 `/opt/conf/config.json` 같은 절대경로를 열면 단순한 `-L`만으로는 전체 파일시스템 구조를 재현하기 어렵습니다.
 
 `chroot`는 추출한 rootfs를 프로그램의 `/`로 보이게 하므로 실행 파일, 라이브러리, 인증서, 웹 문서와 설정을 원래 절대경로에 둘 수 있습니다. 즉, `chroot`를 사용하는 이유는 보안을 위한 격리가 아니라 실기기와 같은 파일시스템 경로를 재현하고 수작업 복사에서 생기는 의존성 누락을 줄이기 위해서입니다.
 
@@ -238,11 +250,39 @@ QEMU user-mode 역시 보드 전체를 가상화하지 않습니다. MIPS 명령
 
 관련 동작은 [QEMU User space emulator 공식 문서](https://www.qemu.org/docs/master/user/main.html)와 [GNU Coreutils의 chroot 설명](https://www.gnu.org/software/coreutils/manual/html_node/chroot-invocation.html)에서 확인할 수 있습니다.
 
+### 3.3 `jooanipc` 실행 결과
+
+카메라 핵심 애플리케이션인 `jooanipc`를 QEMU user-mode에서 실행한 결과가 작업 기록에 남아 있습니다. 처음에는 rootfs를 라이브러리 prefix로 사용하여 다음 오류가 발생했습니다.
+
+```text
+mnt/mtd/run/jooanipc: can't load library 'libcurl.so.4'
+```
+
+`jooanipc`는 appfs의 `/mnt/mtd/lib`에 있는 라이브러리를 사용하므로 appfs 루트를 prefix로 지정했습니다.
+
+```bash
+qemu-mipsel-static -L mnt/mtd/ mnt/mtd/run/jooanipc
+```
+
+이때 다음 출력까지 진행했습니다.
+
+```text
+ThreadCallback [Jooan_Product_Start_Network]
+Start_Network fsstatus:8
+Jooan_Message_Handle ... date = Wed Jun 3 17:11:44 CST 2026
+```
+
+기록된 출력으로 `jooanipc`가 appfs의 라이브러리를 요구하며, 올바른 prefix에서는 로더 초기화를 지나 네트워크 관련 스레드 시작 단계까지 실행된다는 것을 확인했습니다. 실기기 `ps`에서도 `jooanipc` 프로세스가 실행 중인 것을 확인했습니다.
+
+다만 이 실행의 별도 raw 로그와 전체 `-strace`, 열린 소켓·파일 및 하드웨어 장치 접근 기록은 보존되지 않았습니다. 따라서 QEMU에서 카메라 전체 기능이 정상 동작했다고 판단하지 않으며, 문자열에서 발견한 스트리밍·HTTPS·AWS·BLE·MQTT·SD 카드 관련 이름도 실제 실행 결과가 아닌 정적 분석 단서로 구분합니다.
+
 ## 4. 실행 결과를 정적 분석과 연결하기
 
 ### 4.1 입력 기반 syscall 분석
 
 `strace`는 내부 함수 이름을 직접 보여주지는 않지만, 프로그램이 외부에 요청한 파일·소켓 동작과 반환값을 보여줍니다. 따라서 HTTP 요청과 syscall의 변화를 연결하면 Ghidra에서 다시 조사할 문자열과 기능 영역을 좁힐 수 있습니다.
+
+이 절의 정상 실행 결과는 비교용 구버전에서 수집하여 보존한 `old.log`를 기준으로 합니다. 당시 기록된 비교용 바이너리의 MD5는 `076dea6a9386e72f4f335d920caffe80`입니다.
 
 권한에 따른 포트 차이를 배제하기 위해 18080 포트를 사용하고, 준비한 rootfs로 chroot한 상태에서 다음과 같이 로그를 수집했습니다.
 
@@ -276,31 +316,41 @@ open("/etc/webs/home.htm", O_RDONLY) = 7
 
 ### 4.2 버전별 syscall 차이로 초기화 문제 식별
 
-동일한 QEMU·chroot 환경에서 구버전 `goahead`는 웹 문서를 제공했지만 실기기에서 추출한 다른 버전은 같은 요청을 정상 처리하지 못했고, 파일 해시도 달라 서로 다른 빌드임을 확인했습니다. 이에 환경 조건을 고정한 상태에서 두 바이너리의 초기화 과정에 어떤 차이가 있는지 조사했습니다.
+동일한 QEMU·chroot 환경에서 `old.log`의 비교용 `goahead`는 웹 문서를 제공했지만, `new.log`의 실기기 추출 `goahead`는 같은 요청을 정상 처리하지 못했습니다. 당시 파일 식별 기록에서 두 파일의 MD5는 각각 `076dea6a9386e72f4f335d920caffe80`과 `8ff6ebd74eafbb0f9db3dc6cec1209d9`로 구분됩니다. 이에 환경 조건을 고정한 상태에서 두 바이너리의 초기화 과정에 어떤 차이가 있는지 조사했습니다.
 
 동일한 실행 인자와 포트로 수집한 로그의 핵심 차이는 다음과 같습니다.
 
 ```text
-# 정상 버전
+# old.log, 멘토 제공 구버전: MD5 076dea6a9386e72f4f335d920caffe80
 stat64("/etc/webs/home.htm", ...) = 0
 open("/etc/webs/home.htm", O_RDONLY) = 7
 
-# 오류 버전
+# new.log, 실기기 추출 신버전: MD5 8ff6ebd74eafbb0f9db3dc6cec1209d9
 Assertion 0 <= sd && sd < symMax, failed at runtime.c 1978
 stat64("null/", ...) = -1 ENOENT
 open("null/", O_RDONLY) = -1 ENOENT
 ```
 
-오류 버전도 `bind`, `listen`, `accept`에는 성공했으므로 네트워크 초기화 전체가 실패한 것은 아닙니다. 차이는 요청받은 문서를 찾는 단계에서 나타났으며, `null/`은 문서 루트가 정상적으로 설정되지 않았다는 가설로 이어졌습니다. 이 가설을 설명할 수 있는 함수를 Ghidra에서 다음 기준으로 선별했습니다.
+신버전도 `bind`, `listen`, `accept`에는 성공했으므로 네트워크 초기화 전체가 실패한 것은 아닙니다. 차이는 요청받은 문서를 찾는 단계에서 나타났으며, `null/`은 문서 루트 초기화 문제라는 가설로 이어졌습니다. 이 동적 결과를 단서로 두 바이너리의 `websOpen` 호출 관계를 비교했고, `websSetDocuments`와 `websOpenAuth`의 차이를 확인했습니다. 문자열·XRef와 함수 비교 과정은 [바이너리 정적 분석 5장](../바이너리%20정적%20분석/README.md#5-펌웨어-버전-간-goahead-비교)에서 설명합니다.
 
-| 조사 함수 | 선정 근거 |
-|---|---|
-| `websSetDocuments` | syscall에서 문서 루트가 `null`로 사용되었으므로 문서 루트를 저장하는 함수와 XRef 조사 |
-| `websOpenAuth` | `auth.txt` 처리 구간의 assertion과 버전별 `websOpen` 호출 차이를 설명하는 인증 초기화 경로 조사 |
-| `hashCreate` | `sd`, `symMax` assertion과 관련된 내부 심볼·해시 테이블의 생성 여부 조사 |
-| `websFileHandler` 계열 | 요청 URI가 실제 문서 경로로 조합되는 지점 조사 |
+후속 검증에서는 `route.txt`의 기본 route를 다음과 같이 변경했습니다.
 
-두 버전의 `websOpen` 호출 관계를 비교한 결과 `websSetDocuments`와 `websOpenAuth`의 초기화 차이를 확인했습니다. 이로써 조사 범위를 설정 파일 전체나 QEMU 환경이 아니라 문서 루트와 인증 초기화 코드로 좁힐 수 있었습니다. 후속 검증에서는 `route.txt`의 catch-all route에 `dir=/etc/webs`를 명시했을 때 `/etc/webs/home.htm` 접근이 정상화되는 것을 확인했습니다. 구체적인 설정 변경 과정과 결과는 [goahead 웹루트 수정](../../파일%20변조%20및%20리패키징%20사전%20실습/goahead/README.md)에서 설명합니다.
+```text
+# 변경 전
+route uri=/
+
+# 변경 후
+route uri=/ dir=/etc/webs
+```
+
+같은 `/home.htm` 요청에서 `null/` 대신 실제 문서 경로에 접근했습니다.
+
+```text
+stat64("/etc/webs/home.htm", ...) = 0
+open("/etc/webs/home.htm", O_RDONLY) = 7
+```
+
+따라서 웹루트 문제는 바이너리 패치 없이 route 설정으로 해결할 수 있음을 확인했습니다. 구체적인 파일 수정 위치는 [goahead 웹루트 수정](../../파일%20변조%20및%20리패키징%20사전%20실습/goahead/README.md)에서 설명합니다.
 
 ```text
 동일 조건에서 두 버전 실행
@@ -316,7 +366,7 @@ Ghidra에서 관련 함수와 버전별 호출 관계 비교
 
 ### 4.3 등록 함수로 외부 입력과 콜백 후보 연결
 
-초기화 오류와 별도로 외부 HTTP 입력과 관련된 내부 함수를 선별하기 위해 요청 등록 구조를 조사했습니다. 바이너리에 남아 있는 GoAhead 관련 심볼을 확인한 뒤, 공식 API의 역할과 호출 관계를 기준으로 등록 함수를 분석 대상으로 선택했습니다.
+초기화 오류와 별도로 외부 HTTP 입력과 관련된 내부 함수를 선별하기 위해 요청 등록 구조를 조사했습니다. 이 절의 GDB 분석 대상은 MD5 `8ff6ebd74eafbb0f9db3dc6cec1209d9`의 실기기 추출 `goahead`입니다. 바이너리에 남아 있는 GoAhead 관련 심볼을 확인한 뒤, 공식 API의 역할과 호출 관계를 기준으로 등록 함수를 분석 대상으로 선택했습니다.
 
 - `websDefineHandler`는 HTTP 요청 처리기를 등록하므로 URI 처리 방식과 service 함수를 연결하는 경계입니다.
 - `websDefineAction`은 이름과 C 콜백을 연결하여 `/action/NAME` 요청을 처리합니다.
@@ -350,7 +400,7 @@ gdb-multiarch squashfs-root/bin/goahead
 QEMU-GDB에서 동일한 함수에 중단점을 설정하고 MIPS O32 호출 규약에 따라 `$a0`~`$a3`를 관찰했습니다.
 
 ```gdb
-break *<websFormDefine의 실행 주소>
+break *0x0042e6a8
 continue
 x/s $a0
 p/x $a1
@@ -384,7 +434,7 @@ bt
 
 PIE(Position Independent Executable)는 특정 기준 주소에 고정되지 않고 다른 주소에 적재되어도 실행할 수 있도록 만든 위치 독립 실행 파일입니다. 주소 공간 배치 난수화가 적용된 환경에서는 실행할 때마다 적재 기준 주소가 달라질 수 있으므로, Ghidra에 표시된 정적 주소와 실제 실행 주소가 다를 수 있습니다.
 
-분석한 `goahead`는 `readelf`에서 `EXEC`, 진입점 `0x004068c0`으로 확인된 고정 주소형 실행 파일입니다. GDB의 `info files`에서도 같은 진입점과 `.text`, `.rodata`, `.data` 영역을 확인했으므로, 본체 함수는 Ghidra 주소와 같은 주소에 중단점을 설정할 수 있었습니다.
+MD5 `8ff6ebd74eafbb0f9db3dc6cec1209d9`의 `goahead`는 `readelf`에서 `EXEC`, 진입점 `0x004068c0`으로 확인된 고정 주소형 실행 파일입니다. GDB의 `info files`에서도 같은 진입점과 `.text`, `.rodata`, `.data` 영역을 확인했으므로, 본체 함수는 Ghidra 주소와 같은 주소에 중단점을 설정할 수 있었습니다.
 
 반면 PIE 실행 파일이나 공유 라이브러리는 실행 시 기준 주소를 반영해야 합니다. 실제 함수 주소는 다음 관계로 계산합니다.
 
@@ -396,8 +446,8 @@ PIE(Position Independent Executable)는 특정 기준 주소에 고정되지 않
 괄호 안의 차이를 load bias라고 합니다. QEMU의 GDB stub에 연결한 뒤 `info files`로 주 실행 파일의 guest 주소를 확인하고, 공유 라이브러리는 `info sharedlibrary`와 guest 매핑을 이용합니다. GDB가 라이브러리 파일을 해석할 수 있도록 다음과 같이 rootfs의 로컬 복사본을 지정할 수 있습니다.
 
 ```gdb
-set sysroot <rootfs>
-set solib-search-path <rootfs>/lib
+set sysroot path/to/rootfs
+set solib-search-path path/to/rootfs/lib
 info files
 info sharedlibrary
 ```
@@ -565,6 +615,7 @@ cat /tmp/sd/device_test.txt
 - 바이너리 형식에 맞춰 QEMU와 GDB를 선택하고, BusyBox 실행과 GDB 연결로 기본 분석 환경을 검증했습니다.
 - rootfs와 config 영역을 구성하여 `goahead`가 요구하는 절대경로와 설정 의존성을 재현했습니다.
 - 성공한 syscall 로그에서 라이브러리·설정 파일 적재, `bind`·`listen`·`accept`와 웹 문서 접근을 확인했습니다.
+- `jooanipc`의 작업 기록에서는 appfs 라이브러리 prefix 적용 후 네트워크 관련 스레드 시작 단계까지 진행됐습니다.
 - 펌웨어 버전별 syscall 차이에서 null 문서 경로와 assertion을 확인하고, 정적 분석에서 검토할 초기화 함수로 범위를 좁혔습니다.
 - Ghidra와 GDB에서 동일한 등록 함수를 확인하여 form·handler 이름과 내부 callback·service 후보의 대응 관계를 구성했습니다.
 - 실기기에서 부팅 인자, 프로세스, 마운트, 메모리, 실행 파일 경로와 라이브러리 매핑을 확인했습니다.
@@ -593,3 +644,4 @@ cat /tmp/sd/device_test.txt
 - 센서, ISP, Wi-Fi와 전용 커널 모듈의 동작은 실기기에서만 확인할 수 있습니다.
 - 일부 측정값은 특정 펌웨어와 한 시점의 프로세스 상태에 해당합니다.
 - GDB로 등록 함수의 이름과 callback·service 인자를 확인했지만, 모든 form에 실제 HTTP 요청을 보내 각 callback 도달과 응답까지 검증한 것은 아닙니다.
+- `jooanipc`는 별도 raw 실행 로그와 전체 syscall·소켓·장치 접근 기록이 없어 네트워크 스레드 시작 이후의 기능은 확정하지 않았습니다.

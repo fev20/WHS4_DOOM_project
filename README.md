@@ -148,7 +148,7 @@ https://github.com/user-attachments/assets/6dd5558f-63c3-40bf-b55a-29a4ddd6ddfc
 3. 펌웨어 분석
     - [펌웨어 추출](./펌웨어%20분석/펌웨어%20추출/README.md)
     - [binwalk를 통한 정적 구조 분석](./펌웨어%20분석/binwalk를%20통한%20정적%20구조%20분석/README.md)
-    - [Ghidra를 통한 정적 분석](./펌웨어%20분석/Ghidra를%20통한%20정적%20분석/README.md)
+    - [바이너리 정적 분석](./펌웨어%20분석/바이너리%20정적%20분석/README.md)
     - [동적 구조 분석](./펌웨어%20분석/동적%20구조%20분석/README.md)
     - [업데이트 로직 분석](./펌웨어%20분석/업데이트%20로직%20분석/README.md)
 <br>
