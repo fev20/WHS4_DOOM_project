@@ -48,6 +48,7 @@ chmod +x /mnt/sd_card/doomgeneric_camera
     → DOOM 실행 명령이 담긴 파일 실행
     → 게임 화면으로 이동
 ```
+![다이어그램1](./img/image%206.png)
 
 ### 2.1. 준비할 파일
 
@@ -128,6 +129,7 @@ file trigger_test
     → 기존 실행 상태 복원
     → 호출한 곳으로 복귀
 ```
+![다이어그램2](./img/image%207.png)
 
 이번 구현에 사용한 대상 파일의 값은 다음과 같습니다.
 
